@@ -18,11 +18,10 @@ task类型: `lucene_upsert`
 - `writerConfig`: 默认不指定,使用默认配置即可.
 - `ioConfig`: 指定firehose的类型,支持本地文件,hdfs文件接入.
 - `context.throwAwayBadData`: 是否直接丢弃解析出错的数据而不停止task.默认为false,即如果遇到解析报错的数据,则停止task.如果确定只是少量数据有问题,并且直接丢弃也不影响业务,则可设置为true(请慎重).
-- `context.disableUpSert`:是否要停用upsert特性.默认为false.如果停用,如果设置action为修改(`u`),但原有数据中找不到对应的记录,则丢弃数据,而不采用新增方式插入数据,即不执行insert操作.
-- `context.commitThreshold`:写入时多少条记录commit一次,默认100.
-- `context.idealPersistThreadSize`:处理数据更新时由于从数据源读数据比较快,但写入相对较慢,因此采用了生产者消费者模式,一个生产者读取数据后往队列中写数据,默认最大开启3个消费者.
+- `context.commitThreshold`:写入时多少条记录commit一次,默认500.
+- `context.idealPersistThreadSize`:处理数据更新时由于从数据源读数据比较快,但写入相对较慢,因此采用了生产者消费者模式,一个生产者读取数据后往队列中写数据,默认最大开启2个消费者.
 - `context.persistQueueThreshold`:指定消息队列的大小,默认1000.
-- `context.allUpSert`: 默认为true,即所有的记录都当做更新,无需指定actionColumn参数.如果设置为false,则必须指定actionColumn.
+- `context.allUpSert`: 默认为true,即所有的记录都当做更新或新增,无需指定actionColumn参数.如果设置为false,则必须指定actionColumn,如果设置action为修改(`u`),但原有数据中找的记录数不等于1,则丢弃数据,而不采用新增方式插入数据,即不执行insert操作..
 ## 示例json配置
 ```
 {
@@ -214,7 +213,6 @@ task类型: `lucene_upsert`
     "context": {
         "debug": true,
         "throwAwayBadData": true,
-        "disableUpSert": true,
         "allUpSert": true
     }
 }
